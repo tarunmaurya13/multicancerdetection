@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Multi-Cancer Detection — Demo</title>
+  <meta name="description" content="Single-page frontend demo for multi-cancer image detection (upload an image to get a prediction)." />
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#6ee7b7; --muted:#94a3b8; --glass: rgba(255,255,255,0.04);
+      --glass-2: rgba(255,255,255,0.03);
+      --radius:14px;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; padding:40px; background: radial-gradient(1200px 600px at 10% 10%, rgba(46,204,113,0.06), transparent), radial-gradient(1000px 500px at 90% 90%, rgba(96,165,250,0.03), transparent), var(--bg); color:#e6eef8;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+
+    .container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:start}
+    header{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .logo{display:flex;gap:12px;align-items:center}
+    .logo .mark{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;color:#052024}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .card{background:linear-gradient(180deg,var(--glass),var(--glass-2));border:1px solid rgba(255,255,255,0.04);padding:18px;border-radius:var(--radius);box-shadow:0 6px 30px rgba(2,6,23,0.6)}
+
+    /* Left column: upload and results */
+    .upload-area{display:flex;flex-direction:column;gap:12px}
+    .drop{border:2px dashed rgba(255,255,255,0.06);padding:28px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:14px;cursor:pointer}
+    .drop.dragover{background:linear-gradient(90deg, rgba(110,231,183,0.04), rgba(96,165,250,0.02));border-color:rgba(110,231,183,0.4)}
+    .drop input{display:none}
+    .big{font-size:15px;font-weight:600}
+    .muted{color:var(--muted);font-size:13px}
+
+    .preview{width:100%;height:240px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.18));display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .preview img{max-width:100%;max-height:100%;object-fit:contain}
+
+    .controls{display:flex;gap:10px;align-items:center}
+    .btn{background:linear-gradient(90deg,var(--accent),#60a5fa);border:none;padding:10px 14px;border-radius:10px;color:#042024;font-weight:700;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted);font-weight:600}
+
+    /* Right column: sidebar */
+    aside .section{margin-bottom:18px}
+    .meta{display:flex;gap:12px;align-items:center}
+    .stat{background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;flex:1}
+    .result{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(110,231,183,0.04), rgba(96,165,250,0.02));color:#00221a}
+
+    .progress{height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+    .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#10b981,#60a5fa)}
+
+    .labels{display:flex;flex-direction:column;gap:8px}
+    .label-row{display:flex;justify-content:space-between;align-items:center}
+
+    footer{grid-column:1/-1;margin-top:18px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+
+    /* small screens */
+    @media (max-width:980px){.container{grid-template-columns:1fr;padding:0 12px}.card{padding:14px}.drop{min-height:220px}.preview{height:180px}}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="mark">MC</div>
+        <div>
+          <h1>Multi‑Cancer Detection</h1>
+          <p class="lead">Upload an image — get predicted cancer type & subtype (frontend demo)</p>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="stat card"><strong>Model:</strong> Demo V1</div>
+        <div class="stat card"><strong>Mode:</strong> Frontend only</div>
+      </div>
+    </header>
+
+    <main class="card upload-area">
+      <div class="drop" id="drop">
+        <input id="file" type="file" accept="image/*" />
+        <div class="big">Drag & drop or click to upload</div>
+        <div class="muted">Supported: JPG, PNG. Try clear tissue slide or scan images for best demo results.</div>
+        <div class="preview" id="preview"><span class="muted">No image selected</span></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:6px">
+        <div class="controls">  
+          <button class="btn" id="predictBtn" disabled>Predict</button>
+          <button class="btn ghost" id="clearBtn">Clear</button>
+        </div>
+        <div class="muted">Tip: This page is a frontend mock. Replace JS fetch call to point at your model server to get real results.</div>
+      </div>
+
+      <div class="card" id="resultCard" style="margin-top:10px;display:none">
+        <h3 style="margin:0 0 8px 0">Prediction</h3>
+        <div id="result" class="result" aria-live="polite">No prediction yet.</div>
+        <div style="margin-top:12px">
+          <div class="label-row"><strong>Confidence</strong><span id="confText">—</span></div>
+          <div class="progress" aria-hidden="true" style="margin-top:6px"><i id="confBar"></i></div>
+        </div>
+        <div style="margin-top:12px" class="labels">
+          <div><strong>Top classes (demo)</strong></div>
+          <div id="classList" style="font-size:13px;color:var(--muted);">—</div>
+        </div>
+      </div>
+    </main>
+
+    <aside>
+      <div class="card section">
+        <h3 style="margin-top:0">About this demo</h3>
+        <p class="muted">This single page app is a frontend-only demonstration. To make it work with a real model, expose an API endpoint (e.g. POST /api/predict) that accepts an image file and returns JSON with predicted class names and confidence scores.</p>
+      </div>
+
+      <div class="card section">
+        <h4 style="margin:0 0 8px 0">Quick instructions</h4>
+        <ol class="muted" style="padding-left:18px;margin:0;font-size:13px;line-height:1.5">
+          <li>Upload an image (histopathology or scan).</li>
+          <li>Click <em>Predict</em> to run the demo.</li>
+          <li>Replace the mockPredict() function with a real fetch to your server.</li>
+        </ol>
+      </div>
+
+      <div class="card section">
+        <h4 style="margin:0 0 8px 0">Model output example</h4>
+        <div class="muted">{"predictions": [{"label":"Breast - IDC","conf":0.91},{"label":"Breast - DCIS","conf":0.06}]}</div>
+      </div>
+
+      <div class="card section">
+        <h4 style="margin:0 0 8px 0">Contact</h4>
+        <div class="muted">Add your backend URL in the JS. For help integrating, paste your server endpoint and I can update the code for you.</div>
+      </div>
+    </aside>
+
+    <footer>
+      <div>© Multi‑Cancer Detection Demo</div>
+      <div class="muted">Open the file locally or host on any static server.</div>
+    </footer>
+  </div>
+
+  <script>
+    // Utilities
+    const el = id => document.getElementById(id);
+    const drop = el('drop');
+    const fileInput = el('file');
+    const preview = el('preview');
+    const predictBtn = el('predictBtn');
+    const clearBtn = el('clearBtn');
+    const resultCard = el('resultCard');
+    const resultBox = el('result');
+    const confBar = el('confBar');
+    const confText = el('confText');
+    const classList = el('classList');
+
+    let currentFile = null;
+
+    // console.log("fileInput",fileInput)
+
+    function showPreview(file){
+      const url = URL.createObjectURL(file);
+      preview.innerHTML = '';
+      const img = document.createElement('img'); img.src = url; img.alt = file.name;
+      preview.appendChild(img);
+    }
+
+    function clear(){
+      currentFile = null; fileInput.value = ''; preview.innerHTML = '<span class="muted">No image selected</span>';
+      predictBtn.disabled = true; resultCard.style.display='none';
+      confBar.style.width='0%'; confText.textContent='—'; classList.textContent='—'; resultBox.textContent='No prediction yet.';
+    }
+
+    // Drag and drop
+    drop.addEventListener('click',()=>fileInput.click());
+    drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('dragover')});
+    drop.addEventListener('dragleave',e=>{drop.classList.remove('dragover')});
+    drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('dragover');
+      const f = e.dataTransfer.files && e.dataTransfer.files[0]; if(f) handleFile(f);
+    });
+
+    fileInput.addEventListener('change',e=>{const f = e.target.files && e.target.files[0]; if(f) handleFile(f);});
+
+    function handleFile(f){
+      if(!f.type.startsWith('image/')){alert('Please upload an image file');return}
+      currentFile = f; showPreview(f); predictBtn.disabled=false;
+    }
+
+    clearBtn.addEventListener('click',clear);
+
+    // Demo prediction (mock). Replace with fetch to your backend.
+    async function mockPredict(file){
+      // read small thumbnail to simulate processing
+      await new Promise(r=>setTimeout(r,800));
+      // Demo logic: use file size and name to create deterministic pseudo-prediction
+      const size = file.size % 100;
+      const types = [
+        {label:'Breast - IDC'}, {label:'Lung - Adenocarcinoma'}, {label:'Skin - Melanoma'}, {label:'Colon - Adenocarcinoma'}, {label:'Brain - Glioma'}
+      ];
+      const top = types[size % types.length];
+      const conf = 0.65 + (size % 35) / 100; // 0.65-0.99
+      const list = types.map((t,i)=>({label:t.label, conf: Math.max(0.01, Math.min(0.98, conf - i*0.12))}));
+      return {predictions:list};
+    }
+
+    predictBtn.addEventListener('click', async ()=>{
+      if(!currentFile) return;
+      predictBtn.disabled=true; predictBtn.textContent='Predicting...';
+      resultCard.style.display='block'; resultBox.textContent='Processing image...';
+
+      try{
+        // If you have a backend, replace the following with a fetch POST to your server:
+        // const fd = new FormData(); fd.append('image', currentFile);
+        // const resp = await fetch('https://your-server/api/predict', {method:'POST', body:fd});
+        // const json = await resp.json();
+
+        const json = await mockPredict(currentFile);
+
+        const top = json.predictions[0];
+        resultBox.textContent = top.label;
+        const confPercent = Math.round((top.conf||0)*100);
+        confBar.style.width = confPercent + '%';
+        confText.textContent = (top.conf||0).toFixed(2);
+
+        // show list
+        classList.innerHTML = json.predictions.map(p=>`<div class="label-row">${p.label} <span style="color:var(--muted)">${(p.conf*100).toFixed(1)}%</span></div>`).join('');
+      }catch(err){
+        resultBox.textContent = 'Error during prediction. See console.'; console.error(err);
+      }finally{
+        predictBtn.disabled=false; predictBtn.textContent='Predict';
+      }
+    }); 
+    // init
+    clear();
+  </script>
+</body>
+</html>
