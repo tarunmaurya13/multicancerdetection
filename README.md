@@ -1,11 +1,21 @@
-# 🧠 Multi-Cancer Classification using CNN-Mamba Hybrid Architecture
+<div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.12-blue.svg)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.4.0-red.svg)
-![CUDA](https://img.shields.io/badge/CUDA-12.1-green.svg)
-![Classes](https://img.shields.io/badge/Classes-24-orange.svg)
-![Platform](https://img.shields.io/badge/Platform-Google%20Colab-yellow.svg)
-![Status](https://img.shields.io/badge/Status-Completed-brightgreen.svg)
+<!-- Animated Typing Header -->
+<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=32&pause=1000&color=FF4B91&center=true&vCenter=true&multiline=true&width=900&height=100&lines=%F0%9F%A7%A0+Multi-Cancer+Classification;CNN+%2B+CBAM+%2B+DropBlock+%2B+Mamba+SSM" alt="Typing SVG" /></a>
+
+<br/>
+
+<!-- Animated Wave Banner -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:2b1a2e,100:ff4b91&height=200&section=header&text=CNN-Mamba%20Hybrid%20Architecture&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=24-Class%20Cancer%20Image%20Classification%20with%20State%20Space%20Modeling&descSize=16&descAlignY=55&descColor=f5a3c7" width="100%"/>
+
+![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.4.0-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
+![CUDA](https://img.shields.io/badge/CUDA-12.1-76B900?style=for-the-badge&logo=nvidia&logoColor=white)
+![Classes](https://img.shields.io/badge/Classes-24-orange?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Platform-Google%20Colab-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)
+
+</div>
 
 ---
 
@@ -217,6 +227,14 @@ Standard Dropout drops individual pixels — which are spatially correlated in C
 
 ## 👤 Author
 
+<div align="center">
+
+**Tarun Maurya**
+Final-year BCA (Artificial Intelligence), Invertis University
+[GitHub](https://github.com/tarunmaurya13) · tarunmaurya016@gmail.com
+
+</div>
+
 > Built as an advanced deep learning research project combining state-of-the-art architectures — CNN, CBAM Attention, DropBlock, and Mamba SSM — for real-world medical image classification.
 
 ---
@@ -227,5 +245,8 @@ This project is open source and available for academic and research purposes.
 
 ---
 
-*"The art of medicine consists of amusing the patient while nature cures the disease." — Voltaire*
-*— This model aims to assist, not replace, medical expertise.* 🧠
+<div align="center">
+<i>"The art of medicine consists of amusing the patient while nature cures the disease." — Voltaire</i>
+<br/>
+<i>This model aims to assist, not replace, medical expertise.</i> 🧠
+</div>
